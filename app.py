@@ -9,6 +9,7 @@ from aiogram.filters import Command
 from aiogram.types import LabeledPrice, PreCheckoutQuery, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from database import (
     init_db, save_subscription, get_subscription,
