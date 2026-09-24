@@ -292,6 +292,13 @@ async def main():
     await init_db()
     me = await bot.get_me()
     logging.info(f"Бот запущен: @{me.username}")
+
+    # Планировщик: автокик раз в час
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(kick_expired_users, "interval", minutes=60)
+    scheduler.start()
+    logging.info("Планировщик запущен: автокик каждые 60 минут")
+
     await dp.start_polling(bot)
 
 
