@@ -10,7 +10,10 @@ from aiogram.types import LabeledPrice, PreCheckoutQuery, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
 
-from database import init_db, save_subscription, get_subscription
+from database import (
+    init_db, save_subscription, get_subscription,
+    get_expired_users, get_expiring_soon, delete_subscription, get_stats
+)
 
 load_dotenv()
 
