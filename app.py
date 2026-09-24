@@ -33,6 +33,45 @@ dp = Dispatcher()
 
 
 # ==================== КОМАНДЫ ====================
+async def kick_expired_users():
+    """Кикает из канала тех, у кого закончилась подписка."""
+    logging.info("Запуск проверки просроченных подписок...")
+    try:
+        expired_ids = await get_expired_users()
+        if not expired_ids:
+            logging.info("Просроченных нет.")
+            return
+
+        logging.info(f"Найдено просроченных: {len(expired_ids)}")
+
+        for user_id in expired_ids:
+            try:
+                # Кикаем: бан + сразу разбан — тогда юзер вылетает, но может вернуться
+                await bot.ban_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
+                await bot.unban_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
+
+                # Удаляем запись из БД
+                await delete_subscription(user_id)
+
+                # Уведомляем пользователя
+                try:
+                    await bot.send_message(
+                        user_id,
+                        "⏰ <b>Ваша подписка закончилась</b>\n\n"
+                        "Доступ к каналу закрыт. Чтобы продлить — нажмите /start\n\n"
+                        "Будем рады видеть вас снова! 🔥",
+                        parse_mode="HTML",
+                    )
+                except Exception as e:
+                    logging.warning(f"Не удалось уведомить {user_id}: {e}")
+
+                logging.info(f"Кикнут: {user_id}")
+
+            except Exception as e:
+                logging.error(f"Ошибка кика {user_id}: {e}")
+
+    except Exception as e:
+        logging.error(f"Ошибка в kick_expired_users: {e}")
 
 @dp.message(Command("start"))
 async def cmd_start(message: Message):
